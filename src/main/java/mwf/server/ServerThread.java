@@ -1,5 +1,6 @@
 package mwf.server;
 
+import mwf.engine.EngineCoordinator;
 import mwf.engine.MWFEngine;
 import mwf.engine.Route;
 import mwf.framework.response.JsonResponse;
@@ -50,11 +51,12 @@ public class ServerThread implements Runnable {
                 return;
             }
 
-            var routeMap = MWFEngine.getInstance().getRouteMap();
+            EngineCoordinator engineCoordinator = EngineCoordinator.getInstance();
+            var routeMap = engineCoordinator.getRouteMap();
             Route route = routeMap.get(request.getLocation());
             String output = "";
             if (route != null) {
-                output = (String) route.getMethod().invoke(route.getObj());
+                output = (String) route.getMethod().invoke(route.getObject());
             }
 
             // Response example

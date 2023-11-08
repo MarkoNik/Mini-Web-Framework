@@ -7,13 +7,11 @@ import java.lang.reflect.Method;
 public class Route {
     private final MethodType methodType;
     private final Method method;
+    private Object object = null;
 
-    private final Object obj;
-
-    public Route(MethodType methodType, Method method, Object obj) {
+    public Route(MethodType methodType, Method method) {
         this.methodType = methodType;
         this.method = method;
-        this.obj = obj;
     }
 
     public Method getMethod() {
@@ -24,7 +22,11 @@ public class Route {
         return methodType;
     }
 
-    public Object getObj() {
-        return obj;
+    public Object getObject() {
+        return object;
+    }
+
+    public void setObject(Object object) {
+        this.object = object;
     }
 }
