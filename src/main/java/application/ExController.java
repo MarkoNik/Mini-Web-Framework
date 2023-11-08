@@ -10,7 +10,7 @@ public class ExController {
     @GET
     @Path(path = "exampleMethod")
     public String exampleMethod() {
-        return "example method works!";
+        return "controller works!";
     }
 
     public ExController() {

@@ -11,6 +11,6 @@ public class ExClass {
     }
 
     public String exampleDI() {
-        return "DI works!";
+        return exClass2.exampleDI();
     }
 }
