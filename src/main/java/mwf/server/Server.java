@@ -1,6 +1,6 @@
 package mwf.server;
 
-import mwf.engine.MWFEnginge;
+import mwf.engine.MWFEngine;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,9 +10,7 @@ public class Server {
 
     public static final int TCP_PORT = 8080;
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
-
-        MWFEnginge mwfEnginge = new MWFEnginge("application");
+    public static void main(String[] args) throws Exception {
 
         try (ServerSocket serverSocket = new ServerSocket(TCP_PORT)) {
             System.out.println("Server is running at http://localhost:" + TCP_PORT);

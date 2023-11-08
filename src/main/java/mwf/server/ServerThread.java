@@ -1,14 +1,17 @@
 package mwf.server;
 
+import mwf.engine.MWFEngine;
+import mwf.engine.Route;
 import mwf.framework.response.JsonResponse;
 import mwf.framework.response.Response;
-import mwf.framework.request.enums.Method;
+import mwf.enums.MethodType;
 import mwf.framework.request.Header;
 import mwf.framework.request.Helper;
 import mwf.framework.request.Request;
 import mwf.framework.request.exceptions.RequestNotValidException;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,12 +50,19 @@ public class ServerThread implements Runnable {
                 return;
             }
 
+            var routeMap = MWFEngine.getInstance().getRouteMap();
+            Route route = routeMap.get(request.getLocation());
+            String output = "";
+            if (route != null) {
+                output = (String) route.getMethod().invoke(route.getObj());
+            }
 
             // Response example
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("route_location", request.getLocation());
             responseMap.put("route_method", request.getMethod().toString());
             responseMap.put("parameters", request.getParameters());
+            responseMap.put("output", output);
             Response response = new JsonResponse(responseMap);
 
             out.println(response.render());
@@ -63,6 +73,8 @@ public class ServerThread implements Runnable {
 
         } catch (IOException | RequestNotValidException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -73,7 +85,7 @@ public class ServerThread implements Runnable {
         }
 
         String[] actionRow = command.split(" ");
-        Method method = Method.valueOf(actionRow[0]);
+        MethodType method = MethodType.valueOf(actionRow[0]);
         String route = actionRow[1];
         Header header = new Header();
         HashMap<String, String> parameters = Helper.getParametersFromRoute(route);
@@ -86,7 +98,7 @@ public class ServerThread implements Runnable {
             }
         } while(!command.trim().isEmpty());
 
-        if(method.equals(Method.POST)) {
+        if(method.equals(MethodType.POST)) {
             int contentLength = Integer.parseInt(header.get("content-length"));
             char[] buff = new char[contentLength];
             in.read(buff, 0, contentLength);

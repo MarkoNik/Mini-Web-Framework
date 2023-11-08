@@ -1,25 +1,25 @@
 package mwf.framework.request;
 
-import mwf.framework.request.enums.Method;
+import mwf.enums.MethodType;
 
 import java.util.HashMap;
 
 public class Request {
 
-    private final Method method;
+    private final MethodType method;
     private final String location;
     private final Header header;
     private final HashMap<String, String> parameters;
 
     public Request() {
-        this(Method.GET, "/");
+        this(MethodType.GET, "/");
     }
 
-    public Request(Method method, String location) {
+    public Request(MethodType method, String location) {
         this(method, location, new Header(), new HashMap<String, String>());
     }
 
-    public Request(Method method, String location, Header header, HashMap<String, String> parameters) {
+    public Request(MethodType method, String location, Header header, HashMap<String, String> parameters) {
         this.method = method;
         this.location = location;
         this.header = header;
@@ -38,11 +38,11 @@ public class Request {
         return new HashMap<String, String>(this.parameters);
     }
 
-    public boolean isMethod(Method method) {
+    public boolean isMethod(MethodType method) {
         return this.getMethod().equals(method);
     }
 
-    public Method getMethod() {
+    public MethodType getMethod() {
         return method;
     }
 
