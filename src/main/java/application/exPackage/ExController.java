@@ -1,4 +1,4 @@
-package application.examplePackage;
+package application.exPackage;
 
 import mwf.annotations.Autowired;
 import mwf.annotations.Controller;
@@ -6,16 +6,16 @@ import mwf.annotations.GET;
 import mwf.annotations.Path;
 
 @Controller(path = "exampleControllerDI")
-public class ExampleController {
+public class ExController {
     @Autowired(verbose = true)
-    public ExampleClass exampleClass;
+    public ExClass exClass;
 
     @GET
     @Path(path = "exampleMethodDI")
     public String exampleMethodDI() {
-        return exampleClass.exampleDI();
+        return exClass.exampleDI();
     }
 
-    public ExampleController() {
+    public ExController() {
     }
 }
