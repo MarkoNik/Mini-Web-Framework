@@ -30,6 +30,15 @@ http://localhost:8080/excontroller/excomponent
 => "exComponent1 call: 1; exComponent2 call: 1"
 
 
+# Test Qualifier 1 (calls the exInterface1 method)
+http://localhost:8080/excontroller/exinterfaceqf1
+=> "QF1 function invoked!"
+
+
+# Test Qualifier 2 (calls the exInterface2 method)
+http://localhost:8080/excontroller/exinterfaceqf2
+=> "QF2 function invoked!"
+
 # Test multiple layer dependency injection
 http://localhost:8080/excontrollerdi/exmethoddi
 => "DI works"

@@ -19,6 +19,7 @@ public class DIEngine {
     public DIEngine(List<Class<?>> classList) throws Exception {
         controllerObjectMap = new HashMap<>();
         singletonBeanCache = new HashMap<>();
+        dependencyContainer = new HashMap<>();
 
         this.classList = classList;
         initializeDependencyContainer();
@@ -53,7 +54,8 @@ public class DIEngine {
             if (autowired != null) {
                 // if autowired field is not a bean, service or component
                 // throw an exception
-                if (!fieldClass.isAnnotationPresent(Bean.class)
+                if (!fieldClass.isInterface()
+                    && !fieldClass.isAnnotationPresent(Bean.class)
                     && !fieldClass.isAnnotationPresent(Service.class)
                     && !fieldClass.isAnnotationPresent(Component.class)) {
                     throw new Exception("Autowired field is not a Bean, Service or Component: "
@@ -77,9 +79,9 @@ public class DIEngine {
                     fieldInstance = instantiateClass(fieldClass);
                 }
 
-                // if verbose log object creation
                 field.set(instance, fieldInstance);
 
+                // if verbose log object creation
                 if (autowired.verbose()) {
                     System.out.println(
                             "Initialized "

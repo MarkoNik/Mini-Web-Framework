@@ -1,9 +1,6 @@
 package application;
 
-import mwf.annotations.Autowired;
-import mwf.annotations.Controller;
-import mwf.annotations.GET;
-import mwf.annotations.Path;
+import mwf.annotations.*;
 
 @Controller(path = "exController")
 public class ExController {
@@ -27,6 +24,13 @@ public class ExController {
     public ExComponent exComponent1;
     @Autowired(verbose = true)
     public ExComponent exComponent2;
+
+    @Qualifier("QF1")
+    @Autowired(verbose = true)
+    public ExInterface exInterface1;
+    @Qualifier("QF2")
+    @Autowired(verbose = true)
+    public ExInterface exInterface2;
 
     @GET
     @Path(path = "exMethod")
@@ -68,6 +72,18 @@ public class ExController {
                 + exComponent1.getCallCounter()
                 + "; exComponent2 call: "
                 + exComponent2.getCallCounter();
+    }
+
+    @GET
+    @Path(path = "exInterfaceQF1")
+    public String exInterfaceQF1() {
+        return exInterface1.exInterfaceFunction();
+    }
+
+    @GET
+    @Path(path = "exInterfaceQF2")
+    public String exInterfaceQF2() {
+        return exInterface2.exInterfaceFunction();
     }
 
     public ExController() {
