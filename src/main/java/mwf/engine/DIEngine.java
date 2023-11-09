@@ -3,6 +3,8 @@ package mwf.engine;
 import mwf.annotations.Autowired;
 import mwf.annotations.Bean;
 import mwf.annotations.Controller;
+import mwf.annotations.Service;
+import mwf.enums.Scope;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -27,34 +29,51 @@ public class DIEngine {
         }
     }
 
-    private Object instantiateClass(Class<?> controller) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Object instance = controller.getDeclaredConstructor().newInstance();
-        for (Field field : controller.getDeclaredFields()) {
-            Object fieldInstance;
+    @SuppressWarnings("unchecked")
+    private Object instantiateClass(Class<?> clazz) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        boolean shouldUseBeanCache = isSingletonBean(clazz);
+        // if class is a Bean singleton or Service, try extracting object from cache
+        if (shouldUseBeanCache && singletonBeanCache.containsKey(clazz)) {
+            return singletonBeanCache.get(clazz);
+        }
+
+        Object instance = clazz.getDeclaredConstructor().newInstance();
+        for (Field field : clazz.getDeclaredFields()) {
+
+            // if the field is autowired
             Autowired autowired = field.getAnnotation(Autowired.class);
             if (autowired != null) {
-                fieldInstance = instantiateClass(field.getType());
+                Object fieldInstance = instantiateClass(field.getType());
+                // if verbose log object creation
+                field.set(instance, fieldInstance);
+
                 if (autowired.verbose()) {
                     System.out.println(
                             "Initialized "
-                            + fieldInstance.getClass().getSimpleName()
-                            + " "
-                            + field.getName()
-                            + " in "
-                            + controller.getSimpleName()
-                            + " on "
-                            + LocalDateTime.now()
-                            + " with "
-                            + fieldInstance.hashCode()
+                                    + fieldInstance.getClass().getSimpleName()
+                                    + " "
+                                    + field.getName()
+                                    + " in "
+                                    + clazz.getSimpleName()
+                                    + " on "
+                                    + LocalDateTime.now()
+                                    + " with "
+                                    + fieldInstance.hashCode()
                     );
                 }
             }
-            else {
-                fieldInstance = field.getDeclaringClass().getDeclaredConstructor().newInstance();
-            }
-            field.set(instance, fieldInstance);
+        }
+        // cache the Bean
+        if (shouldUseBeanCache) {
+            singletonBeanCache.put((Class<? extends Bean>) clazz, instance);
         }
         return instance;
+    }
+
+    private boolean isSingletonBean(Class<?> controller) {
+        Bean bean = controller.getAnnotation(Bean.class);
+        return (bean != null && bean.scope() == Scope.SINGLETON)  // is Bean with singleton scope
+                || controller.isAnnotationPresent(Service.class); // is a Service
     }
 
     public Map<Class<? extends Controller>, Object> getControllerObjectMap() {

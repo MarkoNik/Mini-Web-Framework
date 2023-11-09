@@ -7,10 +7,12 @@ public class ExClass {
     @Autowired(verbose = true)
     public ExClass2 exClass2;
 
+    public ExClass2 exClass3;
+
     public ExClass() {
     }
 
-    public String exampleDI() {
+    public String exDI() {
         return exClass2.exampleDI();
     }
 }

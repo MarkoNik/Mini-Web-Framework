@@ -5,15 +5,15 @@ import mwf.annotations.Controller;
 import mwf.annotations.GET;
 import mwf.annotations.Path;
 
-@Controller(path = "exampleControllerDI")
+@Controller(path = "exControllerDI")
 public class ExController {
     @Autowired(verbose = true)
     public ExClass exClass;
 
     @GET
-    @Path(path = "exampleMethodDI")
-    public String exampleMethodDI() {
-        return exClass.exampleDI();
+    @Path(path = "exMethodDI")
+    public String exMethodDI() {
+        return exClass.exDI();
     }
 
     public ExController() {
