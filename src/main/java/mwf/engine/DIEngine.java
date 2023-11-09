@@ -1,9 +1,6 @@
 package mwf.engine;
 
-import mwf.annotations.Autowired;
-import mwf.annotations.Bean;
-import mwf.annotations.Controller;
-import mwf.annotations.Service;
+import mwf.annotations.*;
 import mwf.enums.Scope;
 
 import java.lang.reflect.Field;
@@ -30,7 +27,7 @@ public class DIEngine {
     }
 
     @SuppressWarnings("unchecked")
-    private Object instantiateClass(Class<?> clazz) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private Object instantiateClass(Class<?> clazz) throws Exception {
         boolean shouldUseBeanCache = isSingletonBean(clazz);
         // if class is a Bean singleton or Service, try extracting object from cache
         if (shouldUseBeanCache && singletonBeanCache.containsKey(clazz)) {
@@ -39,10 +36,18 @@ public class DIEngine {
 
         Object instance = clazz.getDeclaredConstructor().newInstance();
         for (Field field : clazz.getDeclaredFields()) {
-
-            // if the field is autowired
             Autowired autowired = field.getAnnotation(Autowired.class);
             if (autowired != null) {
+                // if autowired field is not a bean, service or component
+                // throw an exception
+                Class <?> fieldClass = field.getType();
+                if (!fieldClass.isAnnotationPresent(Bean.class)
+                    && !fieldClass.isAnnotationPresent(Service.class)
+                    && !fieldClass.isAnnotationPresent(Component.class)) {
+                    throw new Exception("Autowired field is not a Bean, Service or Component: "
+                            + fieldClass.getSimpleName());
+                }
+
                 Object fieldInstance = instantiateClass(field.getType());
                 // if verbose log object creation
                 field.set(instance, fieldInstance);
