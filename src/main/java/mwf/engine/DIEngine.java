@@ -4,7 +4,6 @@ import mwf.annotations.*;
 import mwf.enums.Scope;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -15,14 +14,27 @@ public class DIEngine {
     private List<Class<? extends Controller>> controllerList;
     private final Map<Class<? extends Controller>, Object> controllerObjectMap;
     private Map<Class<? extends Bean>, Object> singletonBeanCache;
+    private Map<String, Class<?>> dependencyContainer;
 
     public DIEngine(List<Class<?>> classList) throws Exception {
         controllerObjectMap = new HashMap<>();
         singletonBeanCache = new HashMap<>();
+
         this.classList = classList;
-        this.controllerList = EngineUtils.filterClassesByAnnotation(classList, Controller.class);
+        initializeDependencyContainer();
+
+        controllerList = EngineUtils.filterClassesByAnnotation(classList, Controller.class);
         for (Class <? extends Controller> controller : this.controllerList) {
             controllerObjectMap.put(controller, instantiateClass(controller));
+        }
+    }
+
+    private void initializeDependencyContainer() {
+        for (Class <?> clazz : this.classList) {
+            Qualifier qualifier = clazz.getAnnotation(Qualifier.class);
+            if (qualifier != null) {
+                dependencyContainer.put(qualifier.value(), clazz);
+            }
         }
     }
 
@@ -36,11 +48,11 @@ public class DIEngine {
 
         Object instance = clazz.getDeclaredConstructor().newInstance();
         for (Field field : clazz.getDeclaredFields()) {
+            Class <?> fieldClass = field.getType();
             Autowired autowired = field.getAnnotation(Autowired.class);
             if (autowired != null) {
                 // if autowired field is not a bean, service or component
                 // throw an exception
-                Class <?> fieldClass = field.getType();
                 if (!fieldClass.isAnnotationPresent(Bean.class)
                     && !fieldClass.isAnnotationPresent(Service.class)
                     && !fieldClass.isAnnotationPresent(Component.class)) {
@@ -48,7 +60,23 @@ public class DIEngine {
                             + fieldClass.getSimpleName());
                 }
 
-                Object fieldInstance = instantiateClass(field.getType());
+                // if autowired field is an interface,
+                // and it isn't annotated with a qualifier
+                // throw an exception
+                Qualifier qualifier = field.getAnnotation(Qualifier.class);
+                if (fieldClass.isInterface() && qualifier == null) {
+                    throw new Exception("Autowired field is an interface without a qualifier: "
+                            + fieldClass.getSimpleName());
+                }
+
+                Object fieldInstance;
+                if (fieldClass.isInterface()) {
+                    fieldInstance = instantiateClass(dependencyContainer.get(qualifier.value()));
+                }
+                else {
+                    fieldInstance = instantiateClass(fieldClass);
+                }
+
                 // if verbose log object creation
                 field.set(instance, fieldInstance);
 
