@@ -6,16 +6,15 @@ import mwf.annotations.POST;
 import mwf.annotations.Path;
 import mwf.enums.MethodType;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class MWFEngine {
+public class RouteEngine {
     private List<Class<?>> classList;
     private List<Class<? extends Controller>> controllerList;
     private final Map<String, Route> routeMap;
 
-    public MWFEngine(List<Class<?>> classList) throws Exception {
+    public RouteEngine(List<Class<?>> classList) throws Exception {
         this.classList = classList;
         this.controllerList = EngineUtils.filterClassesByAnnotation(classList, Controller.class);
         routeMap = new HashMap<>();

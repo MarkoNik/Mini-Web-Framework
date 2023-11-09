@@ -1,7 +1,5 @@
 package mwf.server;
 
-import mwf.engine.MWFEngine;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;

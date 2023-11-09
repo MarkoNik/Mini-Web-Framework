@@ -2,13 +2,12 @@ package mwf.engine;
 
 import mwf.annotations.Controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class EngineCoordinator {
     private static final EngineCoordinator instance;
-    private final MWFEngine mwfEngine;
+    private final RouteEngine routeEngine;
     private final DIEngine diEngine;
 
     private final List<Class<?>> classList;
@@ -26,10 +25,10 @@ public class EngineCoordinator {
 
     private EngineCoordinator() throws Exception {
         this.classList = EngineUtils.findClasses();
-        mwfEngine = new MWFEngine(classList);
+        routeEngine = new RouteEngine(classList);
         diEngine = new DIEngine(classList);
 
-        routeMap = mwfEngine.getRouteMap();
+        routeMap = routeEngine.getRouteMap();
         controllerObjectMap = diEngine.getControllerObjectMap();
         instantiateRoutes();
     }
