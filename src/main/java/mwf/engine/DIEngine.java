@@ -30,10 +30,14 @@ public class DIEngine {
         }
     }
 
-    private void initializeDependencyContainer() {
+    private void initializeDependencyContainer() throws Exception {
         for (Class <?> clazz : this.classList) {
             Qualifier qualifier = clazz.getAnnotation(Qualifier.class);
             if (qualifier != null) {
+                if (dependencyContainer.containsKey(qualifier.value())) {
+                    throw new Exception("Cannot have the same qualifier for more than 1 class: "
+                                        + qualifier.value());
+                }
                 dependencyContainer.put(qualifier.value(), clazz);
             }
         }
@@ -66,14 +70,9 @@ public class DIEngine {
             }
 
             Object fieldInstance;
+            // find implementation in DependencyContainer
             if (fieldClass.isInterface()) {
                 Class<?> qualifiedClass = dependencyContainer.get(qualifier.value());
-                if (!qualifiedClass.isAnnotationPresent(Bean.class)
-                        && !qualifiedClass.isAnnotationPresent(Service.class)
-                        && !qualifiedClass.isAnnotationPresent(Component.class)) {
-                    throw new Exception("Autowired field is not a Bean, Service or Component: "
-                            + qualifiedClass.getSimpleName());
-                }
                 fieldInstance = instantiateClass(qualifiedClass);
                 fieldClass = fieldInstance.getClass();
             };
