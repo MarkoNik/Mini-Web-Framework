@@ -13,7 +13,7 @@ public class EngineCoordinator {
     private final List<Class<?>> classList;
     private Map<String, Route> routeMap;
 
-    private Map<Class<? extends Controller>, Object> controllerObjectMap;
+    private final Map<Class<? extends Controller>, Object> controllerObjectMap;
 
     static {
         try {

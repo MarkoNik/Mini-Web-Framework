@@ -14,7 +14,7 @@ import java.util.Map;
 public class DIEngine {
     private List<Class<?>> classList;
     private List<Class<? extends Controller>> controllerList;
-    private Map<Class<? extends Controller>, Object> controllerObjectMap;
+    private final Map<Class<? extends Controller>, Object> controllerObjectMap;
     private Map<Class<? extends Bean>, Object> singletonBeanCache;
 
     public DIEngine(List<Class<?>> classList) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
