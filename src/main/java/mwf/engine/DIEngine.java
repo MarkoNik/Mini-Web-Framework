@@ -47,42 +47,54 @@ public class DIEngine {
             return singletonBeanCache.get(clazz);
         }
 
+        // instantiate the current class
         Object instance = clazz.getDeclaredConstructor().newInstance();
+
+        // instantiate all autowired fields in current class
         for (Field field : clazz.getDeclaredFields()) {
             Class <?> fieldClass = field.getType();
             Autowired autowired = field.getAnnotation(Autowired.class);
-            if (autowired != null) {
-                // if autowired field is not a bean, service or component
-                // throw an exception
-                if (!fieldClass.isInterface()
-                    && !fieldClass.isAnnotationPresent(Bean.class)
-                    && !fieldClass.isAnnotationPresent(Service.class)
-                    && !fieldClass.isAnnotationPresent(Component.class)) {
+            if (autowired == null) continue; // only instantiate autowired fields
+
+            // if autowired field is an interface,
+            // and it isn't annotated with a qualifier
+            // throw an exception
+            Qualifier qualifier = field.getAnnotation(Qualifier.class);
+            if (fieldClass.isInterface() && qualifier == null) {
+                throw new Exception("Autowired field is an interface without a qualifier: "
+                        + fieldClass.getSimpleName());
+            }
+
+            Object fieldInstance;
+            if (fieldClass.isInterface()) {
+                Class<?> qualifiedClass = dependencyContainer.get(qualifier.value());
+                if (!qualifiedClass.isAnnotationPresent(Bean.class)
+                        && !qualifiedClass.isAnnotationPresent(Service.class)
+                        && !qualifiedClass.isAnnotationPresent(Component.class)) {
                     throw new Exception("Autowired field is not a Bean, Service or Component: "
-                            + fieldClass.getSimpleName());
+                            + qualifiedClass.getSimpleName());
                 }
+                fieldInstance = instantiateClass(qualifiedClass);
+                fieldClass = fieldInstance.getClass();
+            };
 
-                // if autowired field is an interface,
-                // and it isn't annotated with a qualifier
-                // throw an exception
-                Qualifier qualifier = field.getAnnotation(Qualifier.class);
-                if (fieldClass.isInterface() && qualifier == null) {
-                    throw new Exception("Autowired field is an interface without a qualifier: "
-                            + fieldClass.getSimpleName());
-                }
+            // if autowired field is not a bean, service or component
+            // throw an exception
+            if (!fieldClass.isInterface()
+                && !fieldClass.isAnnotationPresent(Bean.class)
+                && !fieldClass.isAnnotationPresent(Service.class)
+                && !fieldClass.isAnnotationPresent(Component.class)) {
+                throw new Exception("Autowired field is not a Bean, Service or Component: "
+                        + fieldClass.getSimpleName());
+            }
 
-                Object fieldInstance;
-                if (fieldClass.isInterface()) {
-                    fieldInstance = instantiateClass(dependencyContainer.get(qualifier.value()));
-                }
-                else {
-                    fieldInstance = instantiateClass(fieldClass);
-                }
+            else {
+                fieldInstance = instantiateClass(fieldClass);
+            }
+            field.set(instance, fieldInstance);
 
-                field.set(instance, fieldInstance);
-
-                // if verbose log object creation
-                if (autowired.verbose()) {
+            // if verbose log object creation
+            if (autowired.verbose()) {
                     System.out.println(
                             "Initialized "
                                     + fieldInstance.getClass().getSimpleName()
@@ -96,7 +108,6 @@ public class DIEngine {
                                     + fieldInstance.hashCode()
                     );
                 }
-            }
         }
         // cache the Bean
         if (shouldUseBeanCache) {

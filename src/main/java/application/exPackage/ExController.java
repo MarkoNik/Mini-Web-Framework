@@ -8,12 +8,12 @@ import mwf.annotations.Path;
 @Controller(path = "exControllerDI")
 public class ExController {
     @Autowired(verbose = true)
-    public ExClass exClass;
+    public ExClass1 exClass1;
 
     @GET
     @Path(path = "exMethodDI")
     public String exMethodDI() {
-        return exClass.exDI();
+        return exClass1.exDI();
     }
 
     public ExController() {
