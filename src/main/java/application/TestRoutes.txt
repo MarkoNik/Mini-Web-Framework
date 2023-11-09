@@ -1,0 +1,42 @@
+# Blank test
+URL: http://localhost:8080/
+=>
+
+
+# Test controller
+URL: http://localhost:8080/excontroller/exmethod
+=> controller works!
+
+
+## Test Bean Singleton (calls the same function on two different Bean Singleton objects)
+URL: http://localhost:8080/excontroller/exbeansingleton
+=> exBeanSingleton1 call: 0; exBeanSingleton2 call: 1
+
+
+## Test Bean Prototype (calls the same function on two different Bean Prototype objects)
+URL: http://localhost:8080/excontroller/exbeanprototype
+=> exBeanPrototype1 call: 0; exBeanPrototype2 call: 0
+
+
+## Test Service (calls the same function on two different Service objects) (equivalent to Bean Singleton)
+URL: http://localhost:8080/excontroller/exservice
+=> exService1 call: 0; exService2 call: 1
+
+
+## Test Component (calls the same function on two different Service objects) (equivalent to Bean Prototype)
+URL: http://localhost:8080/excontroller/excomponent
+=> exComponent1 call: 0; exComponent2 call: 0
+
+
+# Test Qualifier 1 (calls the exInterface1 method)
+URL: http://localhost:8080/excontroller/exinterfaceqf1
+=> QF1 function invoked!
+
+
+# Test Qualifier 2 (calls the exInterface2 method)
+URL: http://localhost:8080/excontroller/exinterfaceqf2
+=> QF2 function invoked!
+
+# Test multiple layer dependency injection
+URL: http://localhost:8080/excontrollerdi/exmethoddi
+=> DI works!
