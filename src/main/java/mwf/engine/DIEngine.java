@@ -16,7 +16,7 @@ public class DIEngine {
     private final Map<Class<? extends Controller>, Object> controllerObjectMap;
     private Map<Class<? extends Bean>, Object> singletonBeanCache;
 
-    public DIEngine(List<Class<?>> classList) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public DIEngine(List<Class<?>> classList) throws Exception {
         controllerObjectMap = new HashMap<>();
         singletonBeanCache = new HashMap<>();
         this.classList = classList;
